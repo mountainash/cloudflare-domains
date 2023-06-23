@@ -1,9 +1,22 @@
 {
   "private": true,
-  "name": "web-scraper",
-  "version": "1.0.0",
-  "description": "Web scraper built with Cloudflare Workers utilizing HTMLRewriter.",
-  "main": "index.js",
-  "author": "Adam Schwartz <adam.flynn.schwartz@gmail.com>",
-  "license": "MIT"
+  "name": "cloudflare-domains",
+  "version": "1.0.1",
+  "description": "List of TLDs supported by Cloudflare Registrar",
+  "main": "./index.ts",
+  "author": "@mountainash",
+  "contributors": [
+    {
+      "name": "Adam Schwartz",
+      "email": "adam.flynn.schwartz@gmail.com"
+    }
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "wrangler": "3.1.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20230518.0",
+    "typescript": "5.1.3"
+  }
 }

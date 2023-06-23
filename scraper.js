@@ -1,6 +1,6 @@
-const cleanText = s => s.trim().replace(/\s\s+/g, ' ')
+const cleanText = s => s.trim().replace(/^\./g, '').replace(/\s\s+/g, ' ') // Clean: some TLD begin with a dot, remove extra spaces
 
-class Scraper {
+export default class Scraper {
   constructor() {
     this.rewriter = new HTMLRewriter()
     return this
@@ -29,18 +29,19 @@ class Scraper {
     return this
   }
 
-  async getText({ spaced }) {
+  async getText() {
     const matches = {}
     const selectors = new Set(this.selector.split(',').map(s => s.trim()))
+    const key = selectors.size > 1 ? selector : 'domains'
 
     selectors.forEach((selector) => {
-      matches[selector] = []
+      matches[key] = []
 
       let nextText = ''
 
       this.rewriter.on(selector, {
         element(element) {
-          matches[selector].push(true)
+          matches[key].push(true)
           nextText = ''
         },
 
@@ -48,8 +49,7 @@ class Scraper {
           nextText += text.text
 
           if (text.lastInTextNode) {
-            if (spaced) nextText += ' '
-            matches[selector].push(nextText)
+            matches[key].push(nextText)
             nextText = ''
           }
         }
@@ -65,7 +65,7 @@ class Scraper {
 
       let nextText = ''
 
-      matches[selector].forEach(text => {
+      matches[key].forEach(text => {
         if (text === true) {
           if (nextText.trim() !== '') {
             nodeCompleteTexts.push(cleanText(nextText))
@@ -78,31 +78,9 @@ class Scraper {
 
       const lastText = cleanText(nextText)
       if (lastText !== '') nodeCompleteTexts.push(lastText)
-      matches[selector] = nodeCompleteTexts
+      matches[key] = nodeCompleteTexts
     })
 
-    return selectors.length === 1 ? matches[selectors[0]] : matches
-  }
-
-  async getAttribute(attribute) {
-    class AttributeScraper {
-      constructor(attr) {
-        this.attr = attr
-      }
-
-      element(element) {
-        if (this.value) return
-
-        this.value = element.getAttribute(this.attr)
-      }
-    }
-
-    const scraper = new AttributeScraper(attribute)
-
-    await new HTMLRewriter().on(this.selector, scraper).transform(this.response).arrayBuffer()
-
-    return scraper.value || ''
+    return matches
   }
 }
-
-export default Scraper
